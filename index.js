@@ -107,7 +107,33 @@ client.on(Events.Ready, async () => {
 });
 
 /**
+ * BUTTON CLICK HANDLER
+ * Listens for interactions with buttons on messages.
+ * This will loop through all loaded commands and trigger their 
+ * 'onButtonClick' method if it exists.
+ */
+client.on(Events.MessageButtonClick, async (button) => {
+    for (const command of commands.values()) {
+        // Check if the command has a button handler defined
+        if (typeof command.onButtonClick === "function") {
+            try {
+                /**
+                 * If the command handles the button, it should return true.
+                 * This prevents other commands from unnecessarily processing the same click.
+                 */
+                const handled = await command.onButtonClick(button, client);
+                if (handled) break; 
+            } catch (err) {
+                console.error(`Error in button handler for command ${command.name}:`, err);
+            }
+        }
+    }
+});
+
+
+/**
  * LOGIN
  * Uses the bot token from the .env file.
  */
+
 client.login(process.env.BOT_TOKEN);
